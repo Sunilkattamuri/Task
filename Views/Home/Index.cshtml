@@ -1,8 +1,318 @@
 ﻿@{
+
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 2px;
+    }
+
+    .area {
+        fill: lightsteelblue;
+    }
+
+    .bar {
+        fill: steelblue;
+    }
+
+    polyline {
+        opacity: .3;
+        stroke: black;
+        stroke-width: 2px;
+        fill: none;
+    }
+
+    /* Make the percentage on the text labels bold*/
+    .labelName tspan {
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    /* In biology we generally italicise species names. */
+    .labelName {
+        font-size: 0.9em;
+        font-style: italic;
+    }
+</style>
+
+<div id="areaChart">
+
 </div>
+<div id="companyChart">
+
+</div>
+<div id="bankChart">
+
+</div>
+<script type="text/javascript">
+
+    var chartData;
+    var updatedData = [];
+    var comapanyData = [];
+    var bankData = [];
+    var completeData;
+
+    $(document).ready(function () {
+        alert('page loaded');
+        $.getJSON("json/data.json", function (data) {
+            completeData = data;
+            chartData = data.Sheet1.filter(x => x.Division == "Division 2" && x.Currency == "INR");
+            prepareData(chartData);
+            areaChart(updatedData);
+
+            prepareCompanyData(completeData.Sheet1);
+            barChart(comapanyData);
+            //console.log(comapanyData);
+            prepareBankData(completeData.Sheet1);
+            
+            donutChart(bankData);
+
+            
+        })
+    })
+
+
+    function prepareData(data) {
+        data.forEach((value, index) => {
+
+            if (updatedData && updatedData.filter(x => x.BankBalanceDate == value.BankBalanceDate).length <= 0) {
+                updatedData.push(value);
+            } else {
+                let existingData = updatedData.filter(x => x.BankBalanceDate == value.BankBalanceDate)[0];
+                existingData.BankBalanceAmount = +existingData.BankBalanceAmount + (+value.BankBalanceAmount)
+            }
+        })
+    }
+
+    function prepareCompanyData(data) {
+        debugger;
+        data.forEach((value, index) => {
+            if (comapanyData && comapanyData.filter(x => x.EntityId == value.EntityId).length <= 0) {
+                comapanyData.push(value)
+            } else {
+                let tempData = comapanyData.filter(x => x.EntityId == value.EntityId)[0];
+                tempData.BankBalanceAmount += value.BankBalanceAmount;
+            }
+        })
+    }
+
+    function prepareBankData(data) {
+        data.forEach((value, index) => {
+            if (bankData && bankData.filter(x => x.BankName == value.BankName).length <= 0) {
+                bankData.push(value)
+            } else {
+                let tempData = bankData.filter(x => x.BankName == value.BankName)[0];
+                tempData.BankBalanceAmount += value.BankBalanceAmount;
+            }
+        })
+    }
+
+    function areaChart(data) {
+
+        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+
+        var dateFormat = d3.timeFormat("%d-%m-%y")
+        var parseTime = d3.timeParse("%m/%d/%y");
+
+
+        var x = d3.scaleTime().range([0, width]);
+        var y = d3.scaleLinear().range([height, 0]);
+
+
+        var area = d3.area()
+            .x(function (d) { return x(d.date); })
+            .y0(height)
+            .y1(function (d) { return y(+d.close); });
+
+
+        var valueline = d3.line()
+            .x(function (d) { return x(d.date); })
+            .y(function (d) { return y(+d.close); });
+
+
+        var svg = d3.select("#areaChart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        data.forEach(function (d) {
+
+            d.date = parseTime((d.BankBalanceDate));
+            d.close = +d.BankBalanceAmount;
+        });
+
+
+        data.sort((a, b) => b.date - a.date)
+        console.log(data);
+        // scale the range of the data
+        x.domain(d3.extent(data, function (d) { return d.date; }));
+        y.domain([0, d3.max(data, function (d) { return d.close; })]);
+
+        // add the area
+        svg.append("path")
+            .data([data])
+            .attr("class", "area")
+            .attr("d", area);
+
+        // add the valueline path.
+        svg.append("path")
+            .data([data])
+            .attr("class", "line")
+            .attr("d", valueline);
+
+        // add the X Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        // add the Y Axis
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+    }
+
+    function barChart(data) {
+        var margin = { top: 20, right: 20, bottom: 30, left: 40 },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // set the ranges
+        var y = d3.scaleBand()
+            .range([height, 0])
+            .padding(0.1);
+
+        var x = d3.scaleLinear()
+            .range([0, width]);
+
+        // append the svg object to the body of the page
+        // append a 'group' element to 'svg'
+        // moves the 'group' element to the top left margin
+        var svg = d3.select("#companyChart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // format the data
+        data.forEach(function (d) {
+            d.BankBalanceAmount = +d.BankBalanceAmount;
+        });
+
+        // Scale the range of the data in the domains
+        x.domain([0, d3.max(data, function (d) { return d.BankBalanceAmount; })])
+        y.domain(data.map(function (d) { return d.EntityId; }));
+        //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
+        // append the rectangles for the bar chart
+        svg.selectAll(".bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("width", function (d) { return x(d.BankBalanceAmount); })
+            .attr("y", function (d) { return y(d.EntityId); })
+            .attr("height", y.bandwidth());
+
+        // add the x Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        // add the y Axis
+        svg.append("g")
+            .call(d3.axisLeft(y));
+    }
+
+    function donutChart(data) {
+        var svg = d3.select("#bankChart").append("svg")
+            .attr("width", 960)
+            .attr("height", 500)
+            .append("g");
+
+        svg.append("g")
+            .attr("class", "slices");
+        svg.append("g")
+            .attr("class", "labels");
+        svg.append("g")
+            .attr("class", "lines");
+        var width = 500;
+        var height = 400;
+        var radius = Math.min(width, height) / 2;
+        var color = d3.scaleOrdinal(d3.schemeCategory20);
+        //var data = [26, 25, 10, 30, 30, 50, 33, 56, 38];
+
+        var tempData = [];
+        data.forEach((value)=>{
+            tempData.push(value.BankBalanceAmount);
+        });
+        
+        console.log(tempData)
+        tempData = [26, 25, 10, 30, 30, 50, 33, 56, 38];
+
+        var pie = d3.pie().sort(null).value(d => d);
+        var arc = d3.arc().innerRadius(radius * 0.8).outerRadius(radius * 0.6);
+
+        var outerArc = d3.arc()
+            .outerRadius(radius * 0.9)
+            .innerRadius(radius * 0.9);
+
+        svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        svg.selectAll('path')
+            .data(pie(tempData))
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', (d, i) => color(i));
+        svg.append('g').classed('labels', true);
+        svg.append('g').classed('lines', true);
+
+
+        var polyline = svg.select('.lines')
+            .selectAll('polyline')
+            .data(pie(tempData))
+            .enter().append('polyline')
+            .attr('points', function (d) {
+
+                // see label transform function for explanations of these three lines.
+                var pos = outerArc.centroid(d);
+                pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
+                return [arc.centroid(d), outerArc.centroid(d), pos]
+            });
+
+
+
+        var label = svg.select('.labels').selectAll('text')
+            .data(pie(tempData))
+            .enter().append('text')
+            .attr('dy', '.35em')
+            .html(function (d) {
+                return d.data;
+            })
+            .attr('transform', function (d) {
+                var pos = outerArc.centroid(d);
+                pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
+                return 'translate(' + pos + ')';
+            })
+            .style('text-anchor', function (d) {
+                return (midAngle(d)) < Math.PI ? 'start' : 'end';
+            });
+
+        svg.append('text')
+            .attr('class', 'toolCircle')
+            .attr('dy', -15) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
+            .html('sdfsd') // add text to the circle.
+            .style('font-size', '.9em')
+            .style('text-anchor', 'middle');
+
+        function midAngle(d) { return d.startAngle + (d.endAngle - d.startAngle) / 2; }
+    }
+</script>
