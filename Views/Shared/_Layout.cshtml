@@ -7,6 +7,7 @@
     <title>@ViewData["Title"] - poc</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/simple-sidebar.css" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -22,7 +23,7 @@
                         <img src="~/pictures/ey.png" height="40px">
                     </div>
                     <div class="col-md-8 text-center text-uppercase mt-1">
-                        <h3 >DigiTreasury Cashflow forecasting</h3>
+                        <h3>DigiTreasury Cashflow forecasting</h3>
                     </div>
                     <div class="col-md-2 pl-5  mt-2">
                         Hello <b>User</b>
@@ -40,11 +41,75 @@
             </div>
         </nav>
     </header>
-    <div class="container" style="padding-left:15%;padding-right:0">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+
+    <div class="row col-md-12 m-0 p-0">
+        <div class="col-md-2 m-0 p-0" style="color:#fff;">
+            <div id="sidebar-wrapper"
+                style="color#fff;background:#000;padding-left:15px;padding-right:15px;padding-top:15px">
+                @* <a id="menu-toggle" href="#menu-toggle" class="btn btn-secondary">三</a> *@
+                <li class="sidebar-brand">
+                    Home
+                </li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                        aria-expanded="false">Transactions <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                        aria-expanded="false">Settings <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                        aria-expanded="false">Report & Analysis <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+
+                <li>Cashflow Statement</li>
+                <li>Cashflow Overview</li>
+                <li>Variance Analysis</li>
+                <li class="selected">Bank Position</li>
+                <li>Simulation</li>
+
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="container" style="padding-right:0">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
     </div>
+    <!-- you nav on left side -->
+
 
     <footer class="border-top footer text-muted">
         <div class="container">

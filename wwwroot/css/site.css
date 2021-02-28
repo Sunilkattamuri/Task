@@ -33,6 +33,25 @@ a {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+li{
+  list-style-type:none;
+  padding:10px;
+  color:#fff;
+  font-weight: .75rem;
+  cursor: pointer;
+}
+
+li a{
+  color:#fff;
+  text-decoration: none;
+}
+
+li.selected{
+  background-color:#fff;
+  color:#000000;
+  font-weight: bolder;
+
+}
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
