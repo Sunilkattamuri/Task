@@ -36,17 +36,69 @@
         font-size: 0.9em;
         font-style: italic;
     }
+
+    .graphHeight {
+        height: 35opx;
+    }
+
+    #areaChart,
+    #companyChart,
+    #bankChart {
+        height: 400px;
+    }
+    .card-header{
+        text-transform: uppercase;
+        font-weight: bold;
+        line-height: 1.2em;
+        word-spacing: normal;
+        background-color: lightyellow;
+        border: none;
+    }
 </style>
 
-<div id="areaChart">
+<section>
+<div class="row col-md-12 mb-2">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Daily Bank Balance Movement
+            </div>
+            <div class="card-body">
+                <div id="areaChart" class="graphHeight">
 
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="companyChart">
+<div class="row col-md-12">
+    <div class="col-md-6 pr-1">
+        <div class="card">
+            <div class="card-header">
+                Company wise Bank Balance
+            </div>
+            <div class="card-body">
+                <div id="companyChart" class="graphHeight">
 
-</div>
-<div id="bankChart">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 pl-1">
+        <div class="card">
+            <div class="card-header">
+                Bank wise Bank balance
+            </div>
+            <div class="card-body">
+                <div id="bankChart" class="graphHeight">
 
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+</section>
+
 <script type="text/javascript">
 
     var chartData;
@@ -56,7 +108,7 @@
     var completeData;
 
     $(document).ready(function () {
-        alert('page loaded');
+        //alert('page loaded');
         $.getJSON("json/data.json", function (data) {
             completeData = data;
             chartData = data.Sheet1.filter(x => x.Division == "Division 2" && x.Currency == "INR");
@@ -67,10 +119,10 @@
             barChart(comapanyData);
             //console.log(comapanyData);
             prepareBankData(completeData.Sheet1);
-            
+
             donutChart(bankData);
 
-            
+
         })
     })
 
@@ -112,9 +164,12 @@
 
     function areaChart(data) {
 
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+        let bindingElementWidth = $('#areaChart').width();
+        let bindingElementHeight = $('#areaChart').height();
+        var margin = { top: 20, right: 20, bottom: 30, left: 100 },
+            width = bindingElementWidth - margin.left - margin.right,
+            height = bindingElementHeight - margin.top - margin.bottom;
+
 
 
         var dateFormat = d3.timeFormat("%d-%m-%y")
@@ -180,9 +235,11 @@
     }
 
     function barChart(data) {
-        var margin = { top: 20, right: 20, bottom: 30, left: 40 },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+        let bindingElementWidth = $('#companyChart').width();
+        let bindingElementHeight = $('#companyChart').height();
+        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = bindingElementWidth - margin.left - margin.right,
+            height = bindingElementHeight - margin.top - margin.bottom;
 
         // set the ranges
         var y = d3.scaleBand()
@@ -232,9 +289,11 @@
     }
 
     function donutChart(data) {
+        let bindingElementWidth = $('#bankChart').width();
+        let bindingElementHeight = $('#bankChart').height();
         var svg = d3.select("#bankChart").append("svg")
-            .attr("width", 960)
-            .attr("height", 500)
+            .attr("width", bindingElementWidth)
+            .attr("height", bindingElementHeight)
             .append("g");
 
         svg.append("g")
@@ -250,10 +309,10 @@
         //var data = [26, 25, 10, 30, 30, 50, 33, 56, 38];
 
         var tempData = [];
-        data.forEach((value)=>{
+        data.forEach((value) => {
             tempData.push(value.BankBalanceAmount);
         });
-        
+
         console.log(tempData)
         tempData = [26, 25, 10, 30, 30, 50, 33, 56, 38];
 
@@ -309,7 +368,7 @@
         svg.append('text')
             .attr('class', 'toolCircle')
             .attr('dy', -15) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
-            .html('sdfsd') // add text to the circle.
+            .html() // add text to the circle.
             .style('font-size', '.9em')
             .style('text-anchor', 'middle');
 
