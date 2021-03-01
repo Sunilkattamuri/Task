@@ -69,10 +69,11 @@
         pointer-events: none;
     }
 
-    .toolCircle{
-        font-size:1em;
+    .toolCircle {
+        font-size: 1em;
         font-weight: bolder;
     }
+
     select {
         width: 100%;
 
@@ -184,7 +185,7 @@
         <div class="col-md-6 pl-1">
             <div class="card">
                 <div class="card-header">
-                    Bank wise Bank balance
+                    Bank wise Bank balance (Value in Millions)
                 </div>
                 <div class="card-body">
                     <div id="bankChart" class="graphHeight">
@@ -255,7 +256,7 @@
                 bankData.push(value)
             } else {
                 let tempData = bankData.filter(x => x.BankName == value.BankName)[0];
-                tempData.BankBalanceAmount = (+tempData.BankBalanceAmount) +  (+value.BankBalanceAmount);
+                tempData.BankBalanceAmount = (+tempData.BankBalanceAmount) + (+value.BankBalanceAmount);
             }
         })
     }
@@ -482,7 +483,7 @@
             .enter()
             .append('path')
             .attr('d', arc)
-            .attr('fill', (d, i) => color(i));
+            .attr('fill', (d, i) => color(d.data.BankName));
         svg.append('g').classed('labels', true);
         svg.append('g').classed('lines', true);
 
@@ -507,7 +508,7 @@
             .attr('dy', '.35em')
             .html(function (d) {
                 console.log(d);
-                return ( d.data.BankBalanceAmount);
+                return (d.data.BankBalanceAmount);
             })
             .attr('transform', function (d) {
                 var pos = outerArc.centroid(d);
@@ -521,9 +522,45 @@
         svg.append('text')
             .attr('class', 'toolCircle')
             .attr('dy', -15) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
-            .html( "Total Balance:"+ total) // add text to the circle.
+            .html("Total Balance:" + total) // add text to the circle.
             .style('font-size', '.9em')
             .style('text-anchor', 'middle');
+
+
+        const l = svg.append('g')
+            .attr('transform', `translate(${-width/2},${height/2 - 20})`);
+        ;
+
+        const xl = d3.scaleBand()
+            .range([0, width])
+            .padding(0.3)
+            .domain(data.map(d => d.BankName))
+            ;
+
+        const legend = l.selectAll('.chart-legend')
+            .data(color.domain())
+            .enter()
+            .append('g')
+            .attr('class', 'chart-legend')
+            .attr('transform', (d, i) =>{ 
+                if(i<=4)
+                return `translate(${xl(d)},-10)`;
+                else
+                 return `translate(${xl(d)/2},5)`;
+                })
+            ;
+
+        legend.append('rect')
+            .attr('width', 12)
+            .attr('height', 12)
+            .style('fill', color)
+            ;
+
+        legend.append('text')
+            .attr('x', 20)
+            .attr('y', 10)
+            .text(d => d)
+            ;
 
         function midAngle(d) { return d.startAngle + (d.endAngle - d.startAngle) / 2; }
     }
