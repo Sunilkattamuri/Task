@@ -56,9 +56,35 @@
         border: none;
     }
 
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 80px;
+        height: 50px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+    .toolCircle{
+        font-size:1em;
+        font-weight: bolder;
+    }
     select {
         width: 100%;
-       
+
+    }
+
+    .arc text {
+        font: 10px sans-serif;
+        text-anchor: middle;
+    }
+
+    .arc path {
+        stroke: #fff;
     }
 </style>
 
@@ -72,17 +98,17 @@
                 </div>
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-4 text-center" style="color:green; font-weght:bolder">
+                        <div class="col-md-4 text-center" style="color:green; font-weight:bolder">
                             <h4 class="m-0">406.9M</h4>
-                            <div style="font-weght:bolder">Surplus</div>
+                            <div style="font-weight:bolder">Surplus</div>
                         </div>
-                        <div class="col-md-4 text-center" style="color:red;font-weght:bolder">
+                        <div class="col-md-4 text-center" style="color:red;font-weight:bolder">
                             <h4 class="m-0">107.9M</h4>
-                            <div style="font-weght:bolder">Overdraft</div>
+                            <div style="font-weight:bolder">Overdraft</div>
                         </div>
-                        <div class="col-md-4 text-center" style="font-weght:bolder">
+                        <div class="col-md-4 text-center" style="font-weight:bolder">
                             <h4 class="m-0">299.0M</h4>
-                            <div style="font-weght:bolder">Net Balance</div>
+                            <div style="font-weight:bolder">Net Balance</div>
                         </div>
                     </div>
                 </div>
@@ -95,31 +121,34 @@
             <div class="row col-md-12">
                 <div class="col-md-2">
                     <div class="control-label">Entity</div>
-                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Entity--", new { @class = "form-control"})</div>
+                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Entity--", new {
+                                @class = "form-control"})</div>
                 </div>
                 <div class="col-md-3">
                     <div class="control-label">Bank Name</div>
-                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Bank--", new { @class = "form-control"})</div>
+                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Bank--", new {
+                                @class = "form-control"})</div>
                 </div>
                 <div class="col-md-3">
                     <div class="control-label">Currency</div>
-                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Currency--", new { @class = "form-control"})</div>
+                    <div>@Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "--Select Currency--", new {
+                                @class = "form-control"})</div>
                 </div>
                 <div class="col-md-4">
                     <div class="control-label">Date</div>
                     <div class="row">
                         <div class="col-md-8">
-                        <input type="date" id="datepicker" class="form-control"></div>
+                            <input type="date" id="datepicker" class="form-control"></div>
                         <div class="col-md-4">
-                          <input type="button" value="Search" class="btn btn-primary"></div>
+                            <input type="button" value="Search" class="btn btn-primary"></div>
                     </div>
                 </div>
-                @* <div class="col-md-2 mt-3  pt-1">
+                @* <div class="col-md-2 mt-3 pt-1">
                     <div></div>
                     <div>
-                      
+
                     </div>
-                </div> *@
+                    </div> *@
             </div>
         </div>
 
@@ -189,6 +218,7 @@
             prepareBankData(completeData.Sheet1);
 
             donutChart(bankData);
+            //donutChartLabels(bankData);
 
 
         })
@@ -208,13 +238,13 @@
     }
 
     function prepareCompanyData(data) {
-        debugger;
+        //debugger;
         data.forEach((value, index) => {
             if (comapanyData && comapanyData.filter(x => x.EntityId == value.EntityId).length <= 0) {
                 comapanyData.push(value)
             } else {
                 let tempData = comapanyData.filter(x => x.EntityId == value.EntityId)[0];
-                tempData.BankBalanceAmount += value.BankBalanceAmount;
+                tempData.BankBalanceAmount = +(tempData.BankBalanceAmount) + (+(value.BankBalanceAmount));
             }
         })
     }
@@ -225,7 +255,7 @@
                 bankData.push(value)
             } else {
                 let tempData = bankData.filter(x => x.BankName == value.BankName)[0];
-                tempData.BankBalanceAmount += value.BankBalanceAmount;
+                tempData.BankBalanceAmount = (+tempData.BankBalanceAmount) +  (+value.BankBalanceAmount);
             }
         })
     }
@@ -234,7 +264,7 @@
 
         let bindingElementWidth = $('#areaChart').width();
         let bindingElementHeight = $('#areaChart').height();
-        var margin = { top: 20, right: 20, bottom: 30, left: 100 },
+        var margin = { top: 20, right: 40, bottom: 30, left: 100 },
             width = bindingElementWidth - margin.left - margin.right,
             height = bindingElementHeight - margin.top - margin.bottom;
 
@@ -242,7 +272,7 @@
 
         var dateFormat = d3.timeFormat("%d-%m-%y")
         var parseTime = d3.timeParse("%m/%d/%y");
-
+        var formatTime = d3.timeFormat("%e %B %y");
 
         var x = d3.scaleTime().range([0, width]);
         var y = d3.scaleLinear().range([height, 0]);
@@ -258,6 +288,9 @@
             .x(function (d) { return x(d.date); })
             .y(function (d) { return y(+d.close); });
 
+        var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 
         var svg = d3.select("#areaChart").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -269,7 +302,7 @@
         data.forEach(function (d) {
 
             d.date = parseTime((d.BankBalanceDate));
-            d.close = +d.BankBalanceAmount;
+            d.close = + Math.round(d.BankBalanceAmount);
         });
 
 
@@ -294,18 +327,43 @@
         // add the X Axis
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%d-%b-%y")));
 
         // add the Y Axis
         svg.append("g")
             .call(d3.axisLeft(y));
+
+
+
+        svg.selectAll(".dot")
+            .data(data)
+            .enter().append("circle") // Uses the enter().append() method
+            .attr("class", "dot") // Assign a class for styling
+            .attr("cx", function (d, i) { return x(d.date) })
+            .attr("cy", function (d) { return y(d.close) })
+            .attr("r", 5)
+            .on("mouseover", function (d) {
+                div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                div.html(formatTime(d.date) + "<br/>" + d.close)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function (d) {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+
 
     }
 
     function barChart(data) {
         let bindingElementWidth = $('#companyChart').width();
         let bindingElementHeight = $('#companyChart').height();
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+        var margin = { top: 20, right: 20, bottom: 50, left: 50 },
             width = bindingElementWidth - margin.left - margin.right,
             height = bindingElementHeight - margin.top - margin.bottom;
 
@@ -329,8 +387,12 @@
 
         // format the data
         data.forEach(function (d) {
-            d.BankBalanceAmount = +d.BankBalanceAmount;
+            //console.log(d.BankBalanceAmount);
+            //console.log(Math.round(+d.BankBalanceAmount/10000000,0));
+            d.BankBalanceAmount = (Math.round(d.BankBalanceAmount / 1000000, 0));
         });
+
+        // console.log(data);
 
         // Scale the range of the data in the domains
         x.domain([0, d3.max(data, function (d) { return d.BankBalanceAmount; })])
@@ -338,7 +400,7 @@
         //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
         // append the rectangles for the bar chart
-        svg.selectAll(".bar")
+        var bars = svg.selectAll(".bar")
             .data(data)
             .enter().append("rect")
             .attr("class", "bar")
@@ -346,6 +408,19 @@
             .attr("y", function (d) { return y(d.EntityId); })
             .attr("height", y.bandwidth());
 
+        bars.append("text")
+            .attr("class", "label")
+            //y position of the label is halfway down the bar
+            .attr("y", function (d) {
+                return y(d.EntityId) + y.bandwidth() / 2 + 4;
+            })
+            //x position is 3 pixels to the right of the bar
+            .attr("x", function (d) {
+                return x(d.BankBalanceAmount) + 3;
+            })
+            .text(function (d) {
+                return d.BankBalanceAmount;
+            });
         // add the x Axis
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
@@ -354,6 +429,13 @@
         // add the y Axis
         svg.append("g")
             .call(d3.axisLeft(y));
+
+        svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "center")
+            .attr("x", width - 250)
+            .attr("y", height + 50)
+            .text("Value in Millions");
     }
 
     function donutChart(data) {
@@ -377,14 +459,16 @@
         //var data = [26, 25, 10, 30, 30, 50, 33, 56, 38];
 
         var tempData = [];
-        data.forEach((value) => {
-            tempData.push(value.BankBalanceAmount);
+        var total = 0;
+        data.forEach((d) => {
+            d.BankBalanceAmount = (+d.BankBalanceAmount / 1000000).toFixed(2);
+            total = total + +(d.BankBalanceAmount);
         });
 
         console.log(tempData)
-        tempData = [26, 25, 10, 30, 30, 50, 33, 56, 38];
+        //tempData = [26, 25, 10, 30, 30, 50, 33, 56, 38];
 
-        var pie = d3.pie().sort(null).value(d => d);
+        var pie = d3.pie().sort(null).value(d => +d.BankBalanceAmount);
         var arc = d3.arc().innerRadius(radius * 0.8).outerRadius(radius * 0.6);
 
         var outerArc = d3.arc()
@@ -394,7 +478,7 @@
         svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
         svg.selectAll('path')
-            .data(pie(tempData))
+            .data(pie(data))
             .enter()
             .append('path')
             .attr('d', arc)
@@ -405,7 +489,7 @@
 
         var polyline = svg.select('.lines')
             .selectAll('polyline')
-            .data(pie(tempData))
+            .data(pie(data))
             .enter().append('polyline')
             .attr('points', function (d) {
 
@@ -418,11 +502,12 @@
 
 
         var label = svg.select('.labels').selectAll('text')
-            .data(pie(tempData))
+            .data(pie(data))
             .enter().append('text')
             .attr('dy', '.35em')
             .html(function (d) {
-                return d.data;
+                console.log(d);
+                return ( d.data.BankBalanceAmount);
             })
             .attr('transform', function (d) {
                 var pos = outerArc.centroid(d);
@@ -436,10 +521,52 @@
         svg.append('text')
             .attr('class', 'toolCircle')
             .attr('dy', -15) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
-            .html() // add text to the circle.
+            .html( "Total Balance:"+ total) // add text to the circle.
             .style('font-size', '.9em')
             .style('text-anchor', 'middle');
 
         function midAngle(d) { return d.startAngle + (d.endAngle - d.startAngle) / 2; }
+    }
+
+    function donutChartLabels(data) {
+        var svg = d3.select("svg"),
+            width = +$('#bankChart').width(),
+            height = +$('#bankChart').height(),
+            radius = Math.min(width, height) / 2,
+            g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+        var pie = d3.pie()
+            .sort(null)
+            .value(function (d) { return +d.BankBalanceAmount; });
+
+        var path = d3.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(radius - 70);
+
+        var label = d3.arc()
+            .outerRadius(radius - 40)
+            .innerRadius(radius - 40);
+
+        data.forEach(function (d) {
+            console.log(d);
+            d.BankBalanceAmount = (Math.round(d.BankBalanceAmount / 1000000, 0));
+        });
+
+        var arc = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", function (d) { return color(d.BankName); });
+
+        arc.append("text")
+            .attr("transform", function (d) { return "translate(" + label.centroid(d) + ")"; })
+            .attr("dy", "0.35em")
+            .text(function (d) { return d.data.age; });
+
     }
 </script>
